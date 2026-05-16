@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMedicaments } from '../hooks/useMedicaments';
 import { useCategories } from '../hooks/useCategories';
+import MedicamentModal from '../components/MedicamentModal';
 import './Medicaments.css';
 
 /**
@@ -9,9 +10,10 @@ import './Medicaments.css';
 const Medicaments = () => {
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
     
     // Récupération des données via les hooks personnalisés
-    const { medicaments, loading, error } = useMedicaments({ search, categorie: category });
+    const { medicaments, loading, error, refresh } = useMedicaments({ search, categorie: category });
     const { categories } = useCategories();
 
     return (
@@ -21,10 +23,18 @@ const Medicaments = () => {
                     <h1>Catalogue Médicaments</h1>
                     <p className="subtitle">{medicaments.length} articles trouvés</p>
                 </div>
-                <button className="btn-primary-lg">
+                <button className="btn-primary-lg" onClick={() => setIsModalOpen(true)}>
                     <span>+</span> Ajouter un médicament
                 </button>
             </header>
+
+            <MedicamentModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                categories={categories}
+                onRefresh={refresh}
+            />
+
 
             <section className="filter-section card">
                 <div className="search-box">
