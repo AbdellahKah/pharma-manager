@@ -1,0 +1,83 @@
+[
+  {
+    "model": "categories.categorie",
+    "pk": 1,
+    "fields": {
+      "nom": "Antibiotique",
+      "description": "Médicaments luttant contre les infections bactériennes."
+    }
+  },
+  {
+    "model": "categories.categorie",
+    "pk": 2,
+    "fields": {
+      "nom": "Antalgique",
+      "description": "Médicaments réduisant la douleur."
+    }
+  },
+  {
+    "model": "categories.categorie",
+    "pk": 3,
+    "fields": {
+      "nom": "Anti-inflammatoire",
+      "description": "Médicaments traitant l'inflammation."
+    }
+  },
+  {
+    "model": "medicaments.medicament",
+    "pk": 1,
+    "fields": {
+      "nom": "Doliprane",
+      "dci": "Paracétamol",
+      "categorie": 2,
+      "forme": "Comprimé",
+      "dosage": "500mg",
+      "prix_achat": "1.50",
+      "prix_vente": "2.50",
+      "stock_actuel": 100,
+      "stock_minimum": 20,
+      "date_expiration": "2027-12-31",
+      "ordonnance_requise": false,
+      "date_creation": "2024-05-16T12:00:00Z",
+      "est_actif": true
+    }
+  },
+  {
+    "model": "medicaments.medicament",
+    "pk": 2,
+    "fields": {
+      "nom": "Amoxicilline",
+      "dci": "Amoxicilline",
+      "categorie": 1,
+      "forme": "Gélule",
+      "dosage": "1g",
+      "prix_achat": "3.20",
+      "prix_vente": "5.80",
+      "stock_actuel": 50,
+      "stock_minimum": 15,
+      "date_expiration": "2026-06-30",
+      "ordonnance_requise": true,
+      "date_creation": "2024-05-16T12:00:00Z",
+      "est_actif": true
+    }
+  },
+  {
+    "model": "medicaments.medicament",
+    "pk": 3,
+    "fields": {
+      "nom": "Advil",
+      "dci": "Ibuprofène",
+      "categorie": 3,
+      "forme": "Comprimé",
+      "dosage": "400mg",
+      "prix_achat": "2.10",
+      "prix_vente": "3.90",
+      "stock_actuel": 5,
+      "stock_minimum": 10,
+      "date_expiration": "2026-09-15",
+      "ordonnance_requise": false,
+      "date_creation": "2024-05-16T12:00:00Z",
+      "est_actif": true
+    }
+  }
+]
