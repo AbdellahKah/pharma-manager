@@ -11,6 +11,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     gcc \
+    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # Installation des dépendances Python

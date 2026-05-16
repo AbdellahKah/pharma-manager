@@ -8,7 +8,18 @@ import './Ventes.css';
  * Page de gestion des ventes et historique.
  */
 const Ventes = () => {
-    const { ventes, loading, error, refresh } = useVentes();
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [statutFilter, setStatutFilter] = useState('');
+    const [page, setPage] = useState(1);
+    
+    const { ventes, pagination, loading, error, refresh } = useVentes({
+        date_vente__gte: startDate,
+        date_vente__lte: endDate,
+        statut: statutFilter,
+        page
+    });
+    
     const { medicaments } = useMedicaments();
     const [isCreating, setIsCreating] = useState(false);
     const [formLignes, setFormLignes] = useState([{ medicament: '', quantite: 1 }]);
@@ -77,6 +88,24 @@ const Ventes = () => {
                     {isCreating ? 'Annuler' : '+ Nouvelle Vente'}
                 </button>
             </header>
+            
+            <section className="filter-section card">
+                <div className="filter-group">
+                    <label>Du :</label>
+                    <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+                </div>
+                <div className="filter-group">
+                    <label>Au :</label>
+                    <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+                </div>
+                <div className="select-box">
+                    <select value={statutFilter} onChange={e => setStatutFilter(e.target.value)}>
+                        <option value="">Tous les statuts</option>
+                        <option value="Complétée">Complétées</option>
+                        <option value="Annulée">Annulées</option>
+                    </select>
+                </div>
+            </section>
 
             {isCreating && (
                 <section className="sale-form-section card animate-slide-down">
@@ -183,6 +212,28 @@ const Ventes = () => {
                     </tbody>
                 </table>
                 {loading && <div className="loader">Chargement de l'historique...</div>}
+
+                <footer className="table-footer">
+                    <div className="pagination-info">
+                        Page <strong>{pagination.currentPage}</strong> sur <strong>{pagination.totalPages}</strong> ({pagination.count} ventes)
+                    </div>
+                    <div className="pagination-controls">
+                        <button 
+                            className="btn-page" 
+                            disabled={pagination.currentPage <= 1}
+                            onClick={() => setPage(page - 1)}
+                        >
+                            ← Précédent
+                        </button>
+                        <button 
+                            className="btn-page" 
+                            disabled={pagination.currentPage >= pagination.totalPages}
+                            onClick={() => setPage(page + 1)}
+                        >
+                            Suivant →
+                        </button>
+                    </div>
+                </footer>
             </section>
         </div>
     );

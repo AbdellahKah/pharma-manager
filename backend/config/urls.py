@@ -12,6 +12,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from apps.medicaments.views import MedicamentViewSet
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -20,6 +21,7 @@ urlpatterns = [
     path('api/v1/categories/', include('apps.categories.urls')),
     path('api/v1/medicaments/', include('apps.medicaments.urls')),
     path('api/v1/ventes/', include('apps.ventes.urls')),
+    path('api/v1/alertes/', MedicamentViewSet.as_view({'get': 'alertes'}), name='alertes-direct'),
 
     # ── Authentication ────────────────────────────────────────────────────────
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

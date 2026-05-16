@@ -17,14 +17,22 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (username, password) => {
-        const response = await axios.post(`${import.meta.env.VITE_API_URL.replace('/v1', '')}/token/`, {
-            username,
-            password
-        });
-        localStorage.setItem('token', response.data.access);
-        localStorage.setItem('refresh', response.data.refresh);
-        setUser({ authenticated: true });
-        return response.data;
+        try {
+            // Construction robuste de l'URL du token (on remplace /api/v1 par /api/token)
+            const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+            const baseUrl = rawUrl.replace(/\/v1\/?$/, '');
+            const response = await axios.post(`${baseUrl}/token/`, {
+                username,
+                password
+            });
+            localStorage.setItem('token', response.data.access);
+            localStorage.setItem('refresh', response.data.refresh);
+            setUser({ authenticated: true });
+            return response.data;
+        } catch (error) {
+            console.error("Erreur de connexion détaillée:", error.response?.data || error.message);
+            throw error;
+        }
     };
 
     const logout = () => {

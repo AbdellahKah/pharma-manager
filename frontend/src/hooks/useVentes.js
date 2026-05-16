@@ -6,6 +6,7 @@ import { fetchVentes } from '../api/ventesApi';
  */
 export const useVentes = (filters = {}) => {
     const [ventes, setVentes] = useState([]);
+    const [pagination, setPagination] = useState({ totalPages: 1, currentPage: 1, count: 0 });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -14,21 +15,26 @@ export const useVentes = (filters = {}) => {
         setError(null);
         try {
             const data = await fetchVentes(filters);
-            setVentes(data.results || data);
+            const results = data.results || data;
+            setVentes(Array.isArray(results) ? results : []);
+            if (data.results) {
+                setPagination({
+                    totalPages: data.total_pages,
+                    currentPage: data.current_page,
+                    count: data.count
+                });
+            }
         } catch (err) {
             console.error('Fetch Ventes Error:', err);
-            setError(
-                err.response?.data?.message || 
-                'Erreur lors de la récupération de l\'historique des ventes.'
-            );
+            setError('Erreur de chargement.');
         } finally {
             setLoading(false);
         }
-    }, [JSON.stringify(filters)]);
+    }, [filters.date_vente__gte, filters.date_vente__lte, filters.statut, filters.page]);
 
     useEffect(() => {
         loadData();
     }, [loadData]);
 
-    return { ventes, loading, error, refresh: loadData };
+    return { ventes, pagination, loading, error, refresh: loadData };
 };

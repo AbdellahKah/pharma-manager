@@ -9,6 +9,7 @@ import { fetchMedicaments } from '../api/medicamentsApi';
  */
 export const useMedicaments = (filters = {}) => {
     const [medicaments, setMedicaments] = useState([]);
+    const [pagination, setPagination] = useState({ totalPages: 1, currentPage: 1, count: 0 });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -17,22 +18,26 @@ export const useMedicaments = (filters = {}) => {
         setError(null);
         try {
             const data = await fetchMedicaments(filters);
-            // DRF renvoie un objet paginé { results: [], ... } ou une liste simple
-            setMedicaments(data.results || data);
+            const results = data.results || data;
+            setMedicaments(Array.isArray(results) ? results : []);
+            if (data.results) {
+                setPagination({
+                    totalPages: data.total_pages,
+                    currentPage: data.current_page,
+                    count: data.count
+                });
+            }
         } catch (err) {
             console.error('API Error:', err);
-            setError(
-                err.response?.data?.message || 
-                'Une erreur est survenue lors de la récupération des médicaments.'
-            );
+            setError('Erreur de chargement.');
         } finally {
             setLoading(false);
         }
-    }, [JSON.stringify(filters)]);
+    }, [filters.search, filters.categorie, filters.ordonnance_requise, filters.page]);
 
     useEffect(() => {
         loadData();
     }, [loadData]);
 
-    return { medicaments, loading, error, refresh: loadData };
+    return { medicaments, pagination, loading, error, refresh: loadData };
 };

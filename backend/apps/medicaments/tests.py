@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -7,6 +8,8 @@ from apps.categories.models import Categorie
 
 class MedicamentTests(APITestCase):
     def setUp(self):
+        self.user = User.objects.create_superuser(username='testadmin', password='password')
+        self.client.force_authenticate(user=self.user)
         self.cat = Categorie.objects.create(nom="Test Cat")
         self.url_list = reverse('medicament-list')
 

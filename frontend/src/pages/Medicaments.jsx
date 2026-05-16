@@ -11,11 +11,18 @@ import './Medicaments.css';
 const Medicaments = () => {
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('');
+    const [ordonnance, setOrdonnance] = useState('');
+    const [page, setPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [medicamentToEdit, setMedicamentToEdit] = useState(null);
     
     // Récupération des données via les hooks personnalisés
-    const { medicaments, loading, error, refresh } = useMedicaments({ search, categorie: category });
+    const { medicaments, pagination, loading, error, refresh } = useMedicaments({ 
+        search, 
+        categorie: category,
+        ordonnance_requise: ordonnance,
+        page
+    });
     const { categories } = useCategories();
     
     // -- Handlers --
@@ -81,6 +88,16 @@ const Medicaments = () => {
                         {categories.map(cat => (
                             <option key={cat.id} value={cat.id}>{cat.nom}</option>
                         ))}
+                    </select>
+                </div>
+                <div className="select-box">
+                    <select 
+                        value={ordonnance}
+                        onChange={(e) => setOrdonnance(e.target.value)}
+                    >
+                        <option value="">Tous les médicaments</option>
+                        <option value="true">Sur Ordonnance</option>
+                        <option value="false">Vente Libre</option>
                     </select>
                 </div>
             </section>
@@ -152,6 +169,28 @@ const Medicaments = () => {
                         </tbody>
                     </table>
                 )}
+
+                <footer className="table-footer">
+                    <div className="pagination-info">
+                        Page <strong>{pagination.currentPage}</strong> sur <strong>{pagination.totalPages}</strong> ({pagination.count} articles)
+                    </div>
+                    <div className="pagination-controls">
+                        <button 
+                            className="btn-page" 
+                            disabled={pagination.currentPage <= 1}
+                            onClick={() => setPage(page - 1)}
+                        >
+                            ← Précédent
+                        </button>
+                        <button 
+                            className="btn-page" 
+                            disabled={pagination.currentPage >= pagination.totalPages}
+                            onClick={() => setPage(page + 1)}
+                        >
+                            Suivant →
+                        </button>
+                    </div>
+                </footer>
             </section>
         </div>
     );

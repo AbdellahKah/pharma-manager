@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from .models import Medicament
 
@@ -8,8 +9,12 @@ class MedicamentSerializer(serializers.ModelSerializer):
 
     Inclut le champ calculé 'est_en_alerte' et valide les prix/stocks.
     """
-    est_en_alerte = serializers.ReadOnlyField()
+    est_en_alerte = serializers.SerializerMethodField()
     categorie_nom = serializers.ReadOnlyField(source='categorie.nom')
+
+    @extend_schema_field(serializers.BooleanField())
+    def get_est_en_alerte(self, obj) -> bool:
+        return obj.est_en_alerte
 
     class Meta:
         model = Medicament

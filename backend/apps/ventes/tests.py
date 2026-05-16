@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -7,17 +8,20 @@ from apps.categories.models import Categorie
 
 class VenteTests(APITestCase):
     def setUp(self):
-        self.cat = Categorie.objects.create(nom="Pharma")
+        self.user = User.objects.create_superuser(username='testadmin2', password='password')
+        self.client.force_authenticate(user=self.user)
+        self.cat = Categorie.objects.create(nom="Test Cat")
         self.med = Medicament.objects.create(
-            nom="Doliprane",
+            nom="A",
+            dci="A",
             categorie=self.cat,
-            prix_achat=1.0,
-            prix_vente=2.5,
+            prix_achat=10,
+            prix_vente=20,
             stock_actuel=100,
             stock_minimum=10,
             forme="Comprimé",
             dosage="500mg",
-            date_expiration="2030-01-01"
+            date_expiration="2026-01-01"
         )
         self.url_list = reverse('vente-list')
 

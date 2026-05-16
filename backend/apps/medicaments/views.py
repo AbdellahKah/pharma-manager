@@ -23,25 +23,17 @@ class MedicamentViewSet(viewsets.ModelViewSet):
     Implémente le CRUD complet avec support du soft delete
     et des alertes de stock.
     """
+    queryset = Medicament.objects.filter(est_actif=True)
     serializer_class = MedicamentSerializer
+    filterset_fields = ['categorie', 'ordonnance_requise']
+    search_fields = ['nom', 'dci']
+    ordering_fields = ['nom', 'prix_vente', 'stock_actuel', 'date_expiration']
 
     def get_queryset(self):
         """
-        Retourne les médicaments actifs avec filtrage optionnel.
+        Retourne les médicaments actifs (filtrage géré par les backends).
         """
-        queryset = Medicament.objects.filter(est_actif=True)
-        search = self.request.query_params.get('search')
-        categorie = self.request.query_params.get('categorie')
-
-        if search:
-            queryset = queryset.filter(
-                Q(nom__icontains=search) | Q(dci__icontains=search)
-            )
-        
-        if categorie:
-            queryset = queryset.filter(categorie_id=categorie)
-
-        return queryset.order_by('nom')
+        return self.queryset.order_by('nom')
 
     def destroy(self, request, *args, **kwargs):
         """

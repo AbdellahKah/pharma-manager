@@ -19,9 +19,15 @@ class VenteViewSet(viewsets.ModelViewSet):
     Fournit l'historique et la logique d'annulation avec
     réintégration automatique des stocks.
     """
-    queryset = Vente.objects.all()
+    queryset = Vente.objects.all().order_by('-date_vente')
     serializer_class = VenteSerializer
-    http_method_names = ['get', 'post']  # Pas de PUT/DELETE direct sur les ventes
+    filterset_fields = {
+        'statut': ['exact'],
+        'date_vente': ['gte', 'lte'],
+    }
+    search_fields = ['reference']
+    ordering_fields = ['date_vente', 'total_ttc']
+    http_method_names = ['get', 'post']
 
     @extend_schema(
         summary="Annuler une vente",

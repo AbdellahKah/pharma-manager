@@ -12,7 +12,8 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # ── Security ──────────────────────────────────────────────────────────────────
-SECRET_KEY = config('SECRET_KEY')
+# En production, utilisez TOUJOURS une variable d'environnement SECRET_KEY.
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-development-fallback-key-smartholol')
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
     default='localhost,127.0.0.1',
@@ -33,6 +34,7 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'drf_spectacular',
     'corsheaders',
+    'django_filters',
 ]
 
 LOCAL_APPS = [
@@ -76,14 +78,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+import os
+
 # ── Database ──────────────────────────────────────────────────────────────────
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='localhost'),
+        'NAME': config('DB_NAME', default='pharma_db'),
+        'USER': config('DB_USER', default=os.getenv('USER') or os.getenv('LOGNAME') or 'postgres'),
+        'PASSWORD': config('DB_PASSWORD', default=''),
+        'HOST': config('DB_HOST', default=''),
         'PORT': config('DB_PORT', default='5432'),
     }
 }
@@ -118,7 +122,12 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'apps.core.pagination.CustomPagination',
     'PAGE_SIZE': 10,
 }
 
