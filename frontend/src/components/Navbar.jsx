@@ -1,10 +1,19 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 /**
  * Composant de navigation principal.
  */
 const Navbar = () => {
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     return (
         <nav className="navbar">
             <div className="navbar-container">
@@ -27,6 +36,11 @@ const Navbar = () => {
                         <NavLink to="/ventes" className={({ isActive }) => isActive ? 'active' : ''}>
                             Ventes
                         </NavLink>
+                    </li>
+                    <li>
+                        <button className="btn-logout" onClick={handleLogout}>
+                            Déconnexion
+                        </button>
                     </li>
                 </ul>
             </div>

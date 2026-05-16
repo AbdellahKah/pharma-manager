@@ -1,28 +1,61 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import Medicaments from './pages/Medicaments';
 import Ventes from './pages/Ventes';
+import Login from './pages/Login';
 import './App.css';
 
 /**
- * Composant racine de l'application.
- * Gère le routage et le layout global.
+ * Garde de route pour protéger les pages privées.
  */
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) return <div className="loader">Initialisation...</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  
+  return (
+    <div className="app-container">
+      <Navbar />
+      <main className="main-content">
+        {children}
+      </main>
+    </div>
+  );
+};
+
 function App() {
   return (
-    <Router>
-      <div className="app-container">
-        <Navbar />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/medicaments" element={<Medicaments />} />
-            <Route path="/ventes" element={<Ventes />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          
+          <Route path="/" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/medicaments" element={
+            <ProtectedRoute>
+              <Medicaments />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/ventes" element={
+            <ProtectedRoute>
+              <Ventes />
+            </ProtectedRoute>
+          } />
+
+          {/* Redirection par défaut */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

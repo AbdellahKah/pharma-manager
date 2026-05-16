@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMedicaments } from '../hooks/useMedicaments';
 import { useCategories } from '../hooks/useCategories';
+import { deleteMedicament } from '../api/medicamentsApi';
 import MedicamentModal from '../components/MedicamentModal';
 import './Medicaments.css';
 
@@ -11,10 +12,34 @@ const Medicaments = () => {
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [medicamentToEdit, setMedicamentToEdit] = useState(null);
     
     // Récupération des données via les hooks personnalisés
     const { medicaments, loading, error, refresh } = useMedicaments({ search, categorie: category });
     const { categories } = useCategories();
+    
+    // -- Handlers --
+    
+    const handleEdit = (med) => {
+        setMedicamentToEdit(med);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setMedicamentToEdit(null);
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Voulez-vous vraiment archiver ce médicament ?")) {
+            try {
+                await deleteMedicament(id);
+                refresh();
+            } catch (err) {
+                alert("Erreur lors de l'archivage.");
+            }
+        }
+    };
 
     return (
         <div className="medicaments-page">
@@ -30,9 +55,10 @@ const Medicaments = () => {
 
             <MedicamentModal 
                 isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
+                onClose={handleCloseModal} 
                 categories={categories}
                 onRefresh={refresh}
+                medicamentToEdit={medicamentToEdit}
             />
 
 
@@ -105,8 +131,20 @@ const Medicaments = () => {
                                     </td>
                                     <td className="text-right">
                                         <div className="action-buttons">
-                                            <button title="Modifier" className="btn-edit">✏️</button>
-                                            <button title="Archiver" className="btn-delete">🗑️</button>
+                                            <button 
+                                                title="Modifier" 
+                                                className="btn-edit"
+                                                onClick={() => handleEdit(med)}
+                                            >
+                                                ✏️
+                                            </button>
+                                            <button 
+                                                title="Archiver" 
+                                                className="btn-delete"
+                                                onClick={() => handleDelete(med.id)}
+                                            >
+                                                🗑️
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

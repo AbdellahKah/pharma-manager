@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { createMedicament } from '../api/medicamentsApi';
+import { useState, useEffect } from 'react';
+import { createMedicament, updateMedicament } from '../api/medicamentsApi';
 import './MedicamentModal.css';
 
-const MedicamentModal = ({ isOpen, onClose, categories, onRefresh }) => {
-    const [formData, setFormData] = useState({
+const MedicamentModal = ({ isOpen, onClose, categories, onRefresh, medicamentToEdit }) => {
+    const initialState = {
         nom: '',
         dci: '',
         categorie: '',
@@ -15,9 +15,22 @@ const MedicamentModal = ({ isOpen, onClose, categories, onRefresh }) => {
         stock_minimum: '',
         date_expiration: '',
         ordonnance_requise: false
-    });
+    };
 
+    const [formData, setFormData] = useState(initialState);
     const [submitting, setSubmitting] = useState(false);
+
+    // Pré-remplir le formulaire en mode édition
+    useEffect(() => {
+        if (medicamentToEdit) {
+            setFormData({
+                ...medicamentToEdit,
+                categorie: medicamentToEdit.categorie // L'ID de la catégorie
+            });
+        } else {
+            setFormData(initialState);
+        }
+    }, [medicamentToEdit, isOpen]);
 
     if (!isOpen) return null;
 
@@ -25,17 +38,16 @@ const MedicamentModal = ({ isOpen, onClose, categories, onRefresh }) => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            await createMedicament(formData);
+            if (medicamentToEdit) {
+                await updateMedicament(medicamentToEdit.id, formData);
+            } else {
+                await createMedicament(formData);
+            }
             onRefresh();
             onClose();
-            setFormData({
-                nom: '', dci: '', categorie: '', forme: 'Comprimé',
-                dosage: '', prix_achat: '', prix_vente: '',
-                stock_actuel: '', stock_minimum: '', date_expiration: '',
-                ordonnance_requise: false
-            });
+            setFormData(initialState);
         } catch (err) {
-            alert('Erreur lors de la création : ' + JSON.stringify(err.response?.data || err.message));
+            alert('Erreur lors de l\'enregistrement : ' + JSON.stringify(err.response?.data || err.message));
         } finally {
             setSubmitting(false);
         }
@@ -45,7 +57,7 @@ const MedicamentModal = ({ isOpen, onClose, categories, onRefresh }) => {
         <div className="modal-overlay">
             <div className="modal-content card animate-pop">
                 <div className="modal-header">
-                    <h2>Ajouter un Médicament</h2>
+                    <h2>{medicamentToEdit ? 'Modifier le Médicament' : 'Ajouter un Médicament'}</h2>
                     <button className="btn-close" onClick={onClose}>✕</button>
                 </div>
                 <form onSubmit={handleSubmit} className="modal-form">
@@ -99,7 +111,7 @@ const MedicamentModal = ({ isOpen, onClose, categories, onRefresh }) => {
                     <div className="modal-footer">
                         <button type="button" className="btn-secondary" onClick={onClose}>Annuler</button>
                         <button type="submit" className="btn-submit" disabled={submitting}>
-                            {submitting ? 'Enregistrement...' : 'Enregistrer'}
+                            {submitting ? 'Enregistrement...' : (medicamentToEdit ? 'Enregistrer les modifications' : 'Ajouter au catalogue')}
                         </button>
                     </div>
                 </form>

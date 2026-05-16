@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q, F
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -26,9 +27,21 @@ class MedicamentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        Retourne uniquement les médicaments actifs par défaut.
+        Retourne les médicaments actifs avec filtrage optionnel.
         """
-        return Medicament.objects.filter(est_actif=True)
+        queryset = Medicament.objects.filter(est_actif=True)
+        search = self.request.query_params.get('search')
+        categorie = self.request.query_params.get('categorie')
+
+        if search:
+            queryset = queryset.filter(
+                Q(nom__icontains=search) | Q(dci__icontains=search)
+            )
+        
+        if categorie:
+            queryset = queryset.filter(categorie_id=categorie)
+
+        return queryset.order_by('nom')
 
     def destroy(self, request, *args, **kwargs):
         """
@@ -48,7 +61,7 @@ class MedicamentViewSet(viewsets.ModelViewSet):
         """
         Endpoint personnalisé pour lister les ruptures de stock potentielles.
         """
-        queryset = self.get_queryset().filter(stock_actuel__lte=models.F('stock_minimum'))
+        queryset = self.get_queryset().filter(stock_actuel__lte=F('stock_minimum'))
         # Note: 'models' must be imported if F is used. Let's fix that.
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

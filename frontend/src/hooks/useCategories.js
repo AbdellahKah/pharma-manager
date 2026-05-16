@@ -13,7 +13,7 @@ export const useCategories = () => {
             setLoading(true);
             try {
                 const data = await fetchCategories();
-                setCategories(data);
+                setCategories(data.results || data);
             } catch (err) {
                 console.error('Failed to fetch categories:', err);
             } finally {
